@@ -1,290 +1,166 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>BomberCannon</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600&display=swap" rel="stylesheet">
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BomberCannon</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    body {
+      font-family: sans-serif;
+      background-color: #222; /* Темно-серый фон */
+      color: #eee; /* Светло-серый текст */
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100vh; /* Занимает всю высоту экрана */
+      overflow: hidden; /* Предотвращает прокрутку за пределами контента */
+    }
 
-        body {
-            font-family: 'Poppins', sans-serif;
-            background: #0F172A;
-            color: white;
-            min-height: 100vh;
-            padding-bottom: 80px;
-        }
+    .container {
+      width: 95%; /* Занимает 95% ширины экрана */
+      max-width: 600px; /* Максимальная ширина для больших экранов */
+      padding: 20px;
+      box-sizing: border-box; /* Учитывает padding и border в ширине */
+    }
 
-        .balance-container {
-            text-align: center;
-            padding: 40px 20px;
-            background: linear-gradient(135deg, #1E40AF 0%, #1E3A8A 100%);
-            margin: 20px;
-            border-radius: 20px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-        }
+    .header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
 
-        .balance-title {
-            font-size: 18px;
-            color: #93C5FD;
-            margin-bottom: 8px;
-        }
+    .balance {
+      background-color: #333; /* Более темный серый для контраста */
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      text-align: center;
+      font-size: 1.2em;
+    }
 
-        .balance-amount {
-            font-size: 42px;
-            font-weight: 600;
-            letter-spacing: 1px;
-            background: linear-gradient(45deg, #FFF, #BFDBFE);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
+    .tasks {
+      background-color: #333;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
 
-        .nav-container {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: #1E293B;
-            padding: 12px;
-            border-top: 1px solid #334155;
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-        }
+    .task-item {
+      padding: 10px;
+      border-bottom: 1px solid #555;
+    }
 
-        .nav-button {
-            background: #1E40AF;
-            color: white;
-            border: none;
-            padding: 16px;
-            border-radius: 12px;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
+    .task-item:last-child {
+      border-bottom: none;
+    }
 
-        .nav-button.active {
-            background: #2563EB;
-            box-shadow: 0 4px 12px rgba(30, 64, 175, 0.3);
-        }
+    .referral {
+      background-color: #333;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
 
-        .section {
-            display: none;
-            padding: 20px;
-        }
+    .referral input {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #555;
+      background-color: #444;
+      color: #eee;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
 
-        .section.active {
-            display: block;
-        }
+    .referral button {
+      background-color: #555;
+      color: #eee;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      width: 100%;
+    }
 
-        .task-list {
-            display: grid;
-            gap: 12px;
-        }
+    .main-menu {
+      display: flex;
+      justify-content: space-around;
+      background-color: #333;
+      padding: 10px;
+      border-radius: 8px;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      max-width: 600px; /* Согласование с container */
+      box-sizing: border-box;
+    }
 
-        .task-card {
-            background: #1E293B;
-            padding: 16px;
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-
-        .task-info {
-            flex-grow: 1;
-        }
-
-        .task-title {
-            font-size: 16px;
-            margin-bottom: 4px;
-        }
-
-        .task-reward {
-            color: #93C5FD;
-            font-size: 14px;
-        }
-
-        .task-button {
-            background: #2563EB;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-
-        .task-button:disabled {
-            background: #475569;
-            cursor: not-allowed;
-        }
-
-        .referral-section {
-            text-align: center;
-            padding: 20px;
-        }
-
-        .referral-box {
-            background: #1E293B;
-            padding: 24px;
-            border-radius: 20px;
-            margin: 20px 0;
-        }
-
-        .referral-code {
-            font-size: 24px;
-            color: #60A5FA;
-            margin: 16px 0;
-            padding: 12px;
-            background: rgba(96, 165, 250, 0.1);
-            border-radius: 12px;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-
-        .referral-code:hover {
-            background: rgba(96, 165, 250, 0.2);
-        }
-
-        .stats {
-            color: #94A3B8;
-            font-size: 14px;
-        }
-    </style>
+    .menu-button {
+      background-color: #555;
+      color: #eee;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
-    <!-- Баланс -->
-    <div class="balance-container">
-        <div class="balance-title">ВАШ БАЛАНС</div>
-        <div class="balance-amount" id="balanceAmount">1,500</div>
+
+  <div class="container">
+    <div class="header">
+      <h1>BomberCannon</h1>
     </div>
 
-    <!-- Контент -->
-    <div id="tasks" class="section active">
-        <div class="task-list">
-            <div class="task-card">
-                <div class="task-info">
-                    <div class="task-title">Запустить 10 бомберов</div>
-                    <div class="task-reward">+50 монет</div>
-                </div>
-                <button class="task-button" onclick="completeTask(1)">Выполнить</button>
-            </div>
-            <div class="task-card">
-                <div class="task-info">
-                    <div class="task-title">Участвовать в рейде</div>
-                    <div class="task-reward">+100 монет</div>
-                </div>
-                <button class="task-button" onclick="completeTask(2)">Выполнить</button>
-            </div>
-            <div class="task-card">
-                <div class="task-info">
-                    <div class="task-title">Активировать протокол X</div>
-                    <div class="task-reward">+200 монет</div>
-                </div>
-                <button class="task-button" onclick="completeTask(3)">Выполнить</button>
-            </div>
-        </div>
+    <div class="balance">
+      Баланс: <span id="balance-amount">100</span>
     </div>
 
-    <div id="referral" class="section">
-        <div class="referral-section">
-            <div class="referral-box">
-                <h3>Пригласите друзей</h3>
-                <div class="referral-code" onclick="copyReferral()">
-                    t.me/bombercannon?ref=3X9K7P
-                </div>
-                <div class="stats">
-                    Приглашено: <span id="refCount">0</span> друзей<br>
-                    Заработано: <span id="refEarned">0</span> монет
-                </div>
-            </div>
-        </div>
+    <div class="tasks">
+      <h2>Задания</h2>
+      <div class="task-item">
+        <span>Выполнить простое действие</span>
+        <button>Выполнить</button>
+      </div>
+      <div class="task-item">
+        <span>Пригласить друга</span>
+        <button>Выполнить</button>
+      </div>
+      <div class="task-item">
+        <span>Достигнуть 5-го уровня</span>
+        <button>Выполнить</button>
+      </div>
     </div>
 
-    <!-- Навигация -->
-    <div class="nav-container">
-        <button class="nav-button active" onclick="showSection('tasks')">
-            🎯 Задания
-        </button>
-        <button class="nav-button" onclick="showSection('referral')">
-            👥 Рефералы
-        </button>
-        <button class="nav-button" onclick="Telegram.WebApp.close()">
-            ⚙️ Настройки
-        </button>
+    <div class="referral">
+      <h2>Реферальная система</h2>
+      <input type="text" id="referral-link" value="[Здесь будет ваша реферальная ссылка]" readonly>
+      <button onclick="copyReferralLink()">Копировать ссылку</button>
     </div>
+  </div>
 
-    <script>
-        // Состояние приложения
-        let state = {
-            balance: 1500,
-            completedTasks: [],
-            referrals: 0,
-            earned: 0
-        }
+  <div class="main-menu">
+    <button class="menu-button">Главная</button>
+    <button class="menu-button">Задания</button>
+    <button class="menu-button">Профиль</button>
+  </div>
 
-        // Показать раздел
-        function showSection(sectionId) {
-            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.nav-button').forEach(b => b.classList.remove('active'));
-            document.getElementById(sectionId).classList.add('active');
-            event.target.classList.add('active');
-        }
+  <script>
+    // Инициализация Telegram Web App
+    const tg = window.Telegram.WebApp;
+    tg.expand(); // Развернуть на весь экран
 
-        // Выполнение задания
-        function completeTask(taskId) {
-            if(state.completedTasks.includes(taskId)) {
-                alert('Задание уже выполнено!');
-                return;
-            }
-            
-            const rewards = {1:50, 2:100, 3:200};
-            state.balance += rewards[taskId];
-            state.completedTasks.push(taskId);
-            
-            updateBalance();
-            event.target.disabled = true;
-            event.target.textContent = '✓ Готово';
-            
-            // Отправка данных в бота
-            if(Telegram.WebApp.sendData) {
-                Telegram.WebApp.sendData(JSON.stringify({
-                    task: taskId,
-                    balance: state.balance
-                }));
-            }
-        }
-
-        // Копирование реферальной ссылки
-        function copyReferral() {
-            navigator.clipboard.writeText('t.me/bombercannon?ref=3X9K7P').then(() => {
-                alert('Ссылка скопирована в буфер!');
-            });
-        }
-
-        // Обновление баланса
-        function updateBalance() {
-            document.getElementById('balanceAmount').textContent = 
-                state.balance.toLocaleString();
-        }
-
-        // Инициализация Telegram Web App
-        document.addEventListener('DOMContentLoaded', () => {
-            Telegram.WebApp.ready();
-            Telegram.WebApp.expand();
-            Telegram.WebApp.setHeaderColor('#1E3A8A');
-            Telegram.WebApp.setBackgroundColor('#0F172A');
-        });
-    </script>
+    function copyReferralLink() {
+      const referralLink = document.getElementById("referral-link");
+      referralLink.select();
+      referralLink.setSelectionRange(0, 99999); // Для мобильных устройств
+      document.execCommand("copy");
+      // Можно добавить уведомление об успешном копировании
+      alert("Ссылка скопирована!");
+    }
+  </script>
 </body>
 </html>
